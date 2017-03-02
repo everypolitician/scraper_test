@@ -1,15 +1,14 @@
 # ScraperTest
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/scraper_test`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+Data-driven scraper tests for Scraped.
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'scraper_test'
+git_source(:github) { |repo_name| "https://github.com/#{repo_name}.git" }
+gem 'scraper_test', github: 'everypolitician/scraper_test'
 ```
 
 And then execute:
@@ -22,7 +21,23 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Add the following to your `Rakefile`:
+
+```ruby
+require 'scraper_test'
+ScraperTest::RakeTask.new.install_tasks
+```
+
+Then you can drop a YAML file into the `test/data/` directory the looks like the following:
+
+```yaml
+:url: http://example.com
+:class: ExamplePage
+:to_h:
+  :title: Example Domain
+```
+
+This will create a new instance of the `ExamplePage` class and then pass it a `Scraped::Response` for the `:url`. It will then assert that the `ExamplePage#to_h` method returns the same as the `:to_h:` hash specifies in the YAML.
 
 ## Development
 
@@ -32,5 +47,4 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/scraper_test.
-
+Bug reports and pull requests are welcome on GitHub at https://github.com/everypolitician/scraper_test.
