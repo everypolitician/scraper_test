@@ -23,6 +23,8 @@ module ScraperTest
           c.hook_into :webmock
         end
 
+        Minitest.after_run { VCR.turn_off! }
+
         describe 'Scraper tests' do
           it 'should contain the expected data' do
             # TODO: Make this configurable
