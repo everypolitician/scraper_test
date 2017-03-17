@@ -1,6 +1,22 @@
 require 'scraper_test/version'
+require 'minitest/spec'
 
 module ScraperTest
+  class Test < ::Minitest::Test
+    def test_scraper
+      # TODO: Make this configurable
+      Dir['test/data/*.yml'].each do |file|
+        yaml_data = YAML.load_file(file).to_h
+        url = yaml_data[:url]
+        class_to_test = Object.const_get(yaml_data[:class])
+        VCR.use_cassette(File.basename(url)) do
+          response = class_to_test.new(response: Scraped::Request.new(url: url).response)
+          assert_equal yaml_data[:to_h], response.to_h
+        end
+      end
+    end
+  end
+
   class RakeTask < ::Rake::TaskLib
     attr_reader :name
 
@@ -10,7 +26,6 @@ module ScraperTest
 
     def install_tasks
       task(name) do
-        require 'minitest/autorun'
         require 'pry'
         require 'vcr'
         require 'webmock'
@@ -23,22 +38,10 @@ module ScraperTest
           c.hook_into :webmock
         end
 
-        Minitest.after_run { VCR.turn_off! }
+        Minitest.run
 
-        describe 'Scraper tests' do
-          it 'should contain the expected data' do
-            # TODO: Make this configurable
-            Dir['test/data/*.yml'].each do |file|
-              yaml_data = YAML.load_file(file).to_h
-              url = yaml_data[:url]
-              class_to_test = Object.const_get(yaml_data[:class])
-              VCR.use_cassette(File.basename(url)) do
-                response = class_to_test.new(response: Scraped::Request.new(url: url).response)
-                yaml_data[:to_h].must_equal response.to_h
-              end
-            end
-          end
-        end
+        VCR.turn_off!
+        WebMock.disable!
       end
     end
   end
