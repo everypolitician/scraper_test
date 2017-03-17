@@ -39,6 +39,12 @@ Then you can drop a YAML file into the `test/data/` directory the looks like the
 
 This will create a new instance of the `ExamplePage` class and then pass it a `Scraped::Response` for the `:url`. It will then assert that the `ExamplePage#to_h` method returns the same as the `:to_h:` hash specifies in the YAML.
 
+### Running the tests
+
+To actually test the YAML files you've written you'll need to run the `test:data` rake task:
+
+    bundle exec rake test:data
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
