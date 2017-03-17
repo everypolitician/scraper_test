@@ -4,7 +4,7 @@ module ScraperTest
   class RakeTask < ::Rake::TaskLib
     attr_reader :name
 
-    def initialize(name = :test)
+    def initialize(name = 'test:data')
       @name = name
     end
 
