@@ -1,4 +1,5 @@
 require 'scraper_test/version'
+require 'rake/tasklib'
 
 module ScraperTest
   class RakeTask < ::Rake::TaskLib
