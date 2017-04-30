@@ -35,7 +35,7 @@ module ScraperTest
               class_to_test = Object.const_get(yaml_data[:class])
               VCR.use_cassette(File.basename(url)) do
                 response = class_to_test.new(response: Scraped::Request.new(url: url).response)
-                yaml_data[:to_h].must_equal response.to_h
+                response.to_h.must_equal yaml_data[:to_h]
               end
             end
           end
