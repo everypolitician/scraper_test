@@ -1,5 +1,6 @@
 require 'scraper_test/version'
 require 'rake/tasklib'
+require 'yaml'
 
 module ScraperTest
   class RakeTask < ::Rake::TaskLib
@@ -30,17 +31,44 @@ module ScraperTest
           it 'should contain the expected data' do
             # TODO: Make this configurable
             Dir['test/data/*.yml'].each do |file|
-              yaml_data = YAML.load_file(file).to_h
-              url = yaml_data[:url]
-              class_to_test = Object.const_get(yaml_data[:class])
-              VCR.use_cassette(File.basename(url)) do
-                response = class_to_test.new(response: Scraped::Request.new(url: url).response)
-                response.to_h.must_equal yaml_data[:to_h]
-              end
+              test_results = Results.new(file)
+              test_results.actual.must_equal test_results.expected
             end
           end
         end
       end
+    end
+  end
+
+  class Results
+    def initialize(file)
+      @file = file
+    end
+
+    def actual
+      VCR.use_cassette(File.basename(url)) do
+        class_to_test.new(response: Scraped::Request.new(url: url).response).to_h
+      end
+    end
+
+    def expected
+      yaml_data[:to_h]
+    end
+
+    private
+
+    attr_reader :file
+
+    def class_to_test
+      Object.const_get(yaml_data[:class])
+    end
+
+    def url
+      yaml_data[:url]
+    end
+
+    def yaml_data
+      @yaml_data ||= YAML.load_file(file).to_h
     end
   end
 end
