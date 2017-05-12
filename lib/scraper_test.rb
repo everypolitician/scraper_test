@@ -62,6 +62,10 @@ module ScraperTest
       test_data[:to_h] or raise "No to_h supplied in #{filepath.basename}."
     end
 
+    def target
+      test_data[:target]
+    end
+
     private
 
     attr_reader :filename
