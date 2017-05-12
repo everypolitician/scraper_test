@@ -8,6 +8,14 @@ class DummyClass
   end
 end
 
+class DummyMembersList < Scraped::HTML
+  # This is the class referenced in `./data/target_subset_of_members_list_data.yml`.
+  # The instructions file specifies a subset of the data returned by to_h.
+  def to_h
+    { upper_houser: { members: [{ id: 1, name: 'Jim' }, { id: 2, name: 'Joe' }] } }
+  end
+end
+
 describe ScraperTest::Instructions do
   let(:instructions) { ScraperTest::Instructions.new(file) }
 
@@ -60,6 +68,22 @@ describe ScraperTest::Instructions do
 
     it 'raises an error if the class is unkown' do
       -> { instructions.class_to_test }.must_raise NameError
+    end
+  end
+
+  describe 'instructions that specify a target subset of data' do
+    let(:file) { './test/data/instructions_with_path.yml' }
+
+    it 'returns the expected path' do
+      instructions.path.must_equal [:upper_house, :members, { id: 1 }]
+    end
+  end
+
+  describe 'instructions without path' do
+    let(:file) { './test/data/valid_instructions.yml' }
+
+    it 'returns nil for path' do
+      instructions.path.must_be_nil
     end
   end
 end
