@@ -1,5 +1,6 @@
 require 'scraper_test/version'
 require 'rake/tasklib'
+require 'yaml'
 
 module ScraperTest
   class RakeTask < ::Rake::TaskLib
@@ -30,17 +31,47 @@ module ScraperTest
           it 'should contain the expected data' do
             # TODO: Make this configurable
             Dir['test/data/*.yml'].each do |file|
-              yaml_data = YAML.load_file(file).to_h
-              url = yaml_data[:url]
-              class_to_test = Object.const_get(yaml_data[:class])
-              VCR.use_cassette(File.basename(url)) do
-                response = class_to_test.new(response: Scraped::Request.new(url: url).response)
-                response.to_h.must_equal yaml_data[:to_h]
+              VCR.use_cassette(File.basename(file)) do
+                instructions = Instructions.new(file)
+                response = instructions.class_to_test
+                                       .new(response: Scraped::Request.new(url: instructions.url).response)
+                response.to_h.must_equal instructions.expected
               end
             end
           end
         end
       end
+    end
+  end
+
+  class Instructions
+    def initialize(filename)
+      @filename = filename
+    end
+
+    def url
+      test_data[:url] or raise "No url supplied in #{filepath.basename}."
+    end
+
+    def class_to_test
+      raise "No class supplied in #{filepath.basename}." if test_data[:class].to_s.empty?
+      Object.const_get(test_data[:class])
+    end
+
+    def expected
+      test_data[:to_h] or raise "No to_h supplied in #{filepath.basename}."
+    end
+
+    private
+
+    attr_reader :filename
+
+    def filepath
+      @filepath ||= Pathname.new(filename)
+    end
+
+    def test_data
+      @test_data ||= YAML.load_file(filepath)
     end
   end
 end
