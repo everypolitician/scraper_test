@@ -33,14 +33,41 @@ module ScraperTest
             Dir['test/data/*.yml'].each do |file|
               VCR.use_cassette(File.basename(file)) do
                 instructions = Instructions.new(file)
-                response = instructions.class_to_test
-                                       .new(response: Scraped::Request.new(url: instructions.url).response)
-                response.to_h.must_equal instructions.expected
+                Test.new(instructions).compare { |a, b| a.must_equal b }
               end
             end
           end
         end
       end
+    end
+  end
+
+  class Test
+    def initialize(instructions)
+      @instructions = instructions
+    end
+
+    def compare
+      yield(actual, instructions.expected)
+    end
+
+    private
+
+    def actual
+      return response.to_h unless target
+      target_data = response.to_h.values[0].find { |v| v.merge(target) == v }
+      raise "Cannot find #{target} in response data." if target_data.nil?
+      target_data
+    end
+
+    attr_reader :instructions
+
+    def response
+      instructions.class_to_test.new(response: Scraped::Request.new(url: instructions.url).response)
+    end
+
+    def target
+      instructions.target
     end
   end
 

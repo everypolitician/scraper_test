@@ -1,10 +1,8 @@
 ---
 :class: DummyMembersList
 :url: https://www.example.com
-:path:
-  - :upper_house
-  - :members
-  - :id: 1
+:target:
+  :id: unkown value
 :to_h:
   :id: 1
   :name: 'Jim'

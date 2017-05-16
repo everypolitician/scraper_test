@@ -1,0 +1,8 @@
+---
+:class: DummyMembersList
+:url: http://www.example.com
+:target:
+  :key_not_present: 23
+:to_h:
+  :id: 1
+  :name: 'Jim'
